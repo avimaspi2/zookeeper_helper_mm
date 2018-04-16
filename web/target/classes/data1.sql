@@ -1,0 +1,2 @@
+INSERT INTO Account VALUES (1,123.12,'foo 1 ');
+INSERT INTO Account VALUES(2,23423423.12,'foo 2 ');

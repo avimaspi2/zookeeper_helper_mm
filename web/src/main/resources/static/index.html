@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="content/bootstrap.min.css">
+    <link rel="stylesheet" href="content/sidenav.css">
+
+
+    <style>
+
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 3px;
+        }
+
+        .node text {
+            font: 12px sans-serif;
+        }
+
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+
+    </style>
+
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/d3.js"></script>
+    <script src="js/treeModel.js"></script>
+    <script src="js/angular.min.js"></script>
+
+
+    <script>
+
+
+        var app = angular.module("myApp", []);
+
+        app.controller('myCtrl', function ($scope,$http) {
+
+            $scope.selectedItem = {};
+
+            var model = new treeModel(function (d) {
+                $scope.selectedItem = d;
+                $scope.$apply();
+
+                $scope.selectedItem.parent=null;
+                $http.post("http://localhost:4001/api/getZnodeData",$scope.selectedItem)
+                    .then(function (response) {
+                        console.log(response);
+                     });
+
+
+                $("#mySidenav")
+                    .css("border", "1px solid #98AFC7")
+                    .css("padding", "5px");
+                document.getElementById("mySidenav").style.height = "30%";
+            });
+
+
+            $scope.loadZookeeper = function () {
+                $.get("http://localhost:4001/api/test", function (response, status) {
+                    console.log(response);
+                    model.setData(response[0]);
+                });
+            }
+
+
+            $scope.firstName = "John";
+            $scope.lastName = "Doe";
+            $scope.closeSidenav = function (d) {
+                console.log(d);
+                $("#mySidenav")
+                    .css("border", "0px solid #98AFC7")
+                    .css("padding", "0px");
+                ;
+                document.getElementById("mySidenav").style.height = "0%";
+            }
+        });
+
+
+    </script>
+
+
+</head>
+<body ng-app="myApp" ng-controller="myCtrl" style="height: 100%;">
+
+
+<div style="height: 100%;width: 90%;margin: auto;">
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span style="font-weight: bold;margin-top: -2px;font-size: 24px;" class="pull-right">Zookeeper helper</span>
+            <button ng-click="loadZookeeper();" class="btn btn-primary"> Open zookeeper</button>
+            <input style="width: 50%;display: inline;" placeholder="host name" type="text" class="form-control"
+                   id="usr">
+        </div>
+        <div class="panel-body">
+            <div id="mySidenav" class="sidenav">
+
+
+                <div style="border-bottom: 1px dashed steelblue;height: 30px;">
+                    <span ng-click="closeSidenav();" class="glyphicon glyphicon-remove pull-right"
+                          style="font-size: 15px;color: steelblue;">
+                            </span>
+                    <span ng-click="closeSidenav();" class="pull-left"
+                          style="font-size: 15px;color: steelblue;font-weight: bold;">{{selectedItem.name}}
+                    </span>
+                </div>
+
+
+                <div style="clear: both;"></div>
+
+                <table style="margin-top:15px;">
+                    <tr>
+                        <td style="font-weight:bold ;padding-right: 10px;">Znode Path</td>
+                        <td> {{selectedItem.path}}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:bold ;padding-right: 10px;vertical-align:top;">Znode Children</td>
+                        <td>
+                            <ul style="margin-left:-23px;">
+                                <li ng-repeat="child in selectedItem.children">
+                                    {{child.name}}
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="tree_section"></div>
+        </div>
+    </div>
+
+
+</div>
+
+
+</body>
+</html>
